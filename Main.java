@@ -1,387 +1,238 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
-// Superclass
+// --- SEMUA CLASS DALAM SATU FILE ---
 class User {
-    protected String nama;
+    protected String nama, password;
+    public User(String nama, String password) {
+        this.nama = nama; this.password = password;
+    }
+    public void login() { System.out.println("\n[LOG] " + nama + " berhasil login."); }
+    public void logout() { System.out.println("[LOG] " + nama + " berhasil logout."); }
+    public String getPassword() { return password; }
+    public String getNama() { return nama; }
 }
 
-// Mahasiswa
 class Mahasiswa extends User {
-    private String nim;
-    private String prodi;
-
-    public Mahasiswa(String nama, String nim, String prodi) {
-        this.nama = nama;
+    private String nim, email;
+    public Mahasiswa(String nama, String email, String password, String nim) {
+        super(nama, password);
+        this.email = email;
         this.nim = nim;
-        this.prodi = prodi;
     }
-
-    public String getNama() {
-        return nama;
-    }
+    public String getNim() { return nim; }
+    public String getEmail() { return email; }
 }
 
-// Pengajuan TA
-class PengajuanTA {
-    private String judul;
-    private String status = "Menunggu";
-    private String namaMahasiswa;
-
-    public PengajuanTA(String namaMahasiswa, String judul) {
-        this.namaMahasiswa = namaMahasiswa;
-        this.judul = judul;
-    }
-
-    public String getStatus() { return status; }
-    public String getJudul() { return judul; }
-    public String getNamaMahasiswa() { return namaMahasiswa; }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public void tampilkanMahasiswa() {
-        System.out.println("Judul: " + judul + " | Status: " + status);
-    }
-
-    public void tampilkanDosen() {
-        System.out.println("Mahasiswa: " + namaMahasiswa + " | Judul: " + judul + " | Status: " + status);
-    }
-}
-
-// Jadwal Sidang
-class JadwalSidang {
-    private String namaMahasiswa;
-    private String judul;
-    private String hari, tanggal, bulan, tahun;
-    private String waktu;
-    private String ruangan;
-    private String status;
-
-    public JadwalSidang(String namaMahasiswa, String judul,
-                        String hari, String tanggal, String bulan, String tahun,
-                        String waktu, String ruangan, String status) {
-        this.namaMahasiswa = namaMahasiswa;
-        this.judul = judul;
-        this.hari = hari;
-        this.tanggal = tanggal;
-        this.bulan = bulan;
-        this.tahun = tahun;
-        this.waktu = waktu;
-        this.ruangan = ruangan;
-        this.status = status;
-    }
-
-    public String getJudul() { return judul; }
-
-    public void tampilkan() {
-        System.out.println("Mahasiswa : " + namaMahasiswa);
-        System.out.println("Judul     : " + judul);
-        System.out.println("Hari      : " + hari);
-        System.out.println("Tanggal   : " + tanggal + " " + bulan + " " + tahun);
-        System.out.println("Waktu     : " + waktu);
-        System.out.println("Ruangan   : " + ruangan);
-        System.out.println("Status    : " + status);
-        System.out.println("----------------------------");
-    }
-
-    public void updateJadwal(String hari, String tanggal, String bulan, String tahun, String waktu, String ruangan) {
-        this.hari = hari;
-        this.tanggal = tanggal;
-        this.bulan = bulan;
-        this.tahun = tahun;
-        this.waktu = waktu;
-        this.ruangan = ruangan;
-    }
-
-    public void updateStatus(String status) {
-        this.status = status;
-    }
-}
-
-// Dosen
 class Dosen extends User {
-    private String nip;
-
-    public Dosen(String nama, String nip) {
-        this.nama = nama;
-        this.nip = nip;
+    private String nimDosen;
+    public Dosen(String nama, String nimDosen, String password) {
+        super(nama, password);
+        this.nimDosen = nimDosen;
     }
-
-    public String getInfo() {
-        return "Dosen: " + nama + " | NIP: " + nip;
-    }
-
-    public void verifikasi(PengajuanTA p, boolean acc) {
+    public String getNimDosen() { return nimDosen; }
+    public void verifikasiJudul(PengajuanTA p, boolean acc) {
         if (acc) p.setStatus("Disetujui");
         else p.setStatus("Ditolak");
     }
 }
 
-// MAIN
+class PengajuanTA {
+    private String id, judul, status = "Menunggu", namaMhs, nimMhs;
+    public PengajuanTA(String id, String judul, String namaMhs, String nimMhs) {
+        this.id = id; this.judul = judul; this.namaMhs = namaMhs; this.nimMhs = nimMhs;
+    }
+    public String getNim() { return nimMhs; }
+    public String getStatus() { return status; } // Tambahan getter status
+    public void setStatus(String s) { this.status = s; }
+    public void tampilkanPengajuan() {
+        System.out.println("[" + id + "] " + namaMhs + " - " + judul + " | Status: " + status);
+    }
+}
+
+class JadwalSidang {
+    public String id, nim, tgl, wkt, rng, st;
+    public JadwalSidang(String id, String nim, String tgl, String wkt, String rng, String st) {
+        this.id = id; this.nim = nim; this.tgl = tgl; this.wkt = wkt; this.rng = rng; this.st = st;
+    }
+    public void tampilkanJadwal() {
+        System.out.println("ID: " + id + " | NIM: " + nim + " | Tgl: " + tgl + " | Jam: " + wkt + " | Ruang: " + rng + " | Status: " + st);
+    }
+}
+
 public class Main {
+    static Scanner sc = new Scanner(System.in);
+    static ArrayList<Mahasiswa> listMhs = new ArrayList<>();
+    static ArrayList<Dosen> listDosen = new ArrayList<>();
+    static ArrayList<PengajuanTA> listPengajuan = new ArrayList<>();
+    static ArrayList<JadwalSidang> listJadwal = new ArrayList<>();
+
     public static void main(String[] args) {
-
-        Scanner input = new Scanner(System.in);
-        ArrayList<PengajuanTA> daftar = new ArrayList<>();
-        ArrayList<JadwalSidang> jadwalList = new ArrayList<>();
-
         int pilih;
-
         do {
-            System.out.println("\n=== MENU UTAMA ===");
-            System.out.println("1. Mahasiswa");
-            System.out.println("2. Dosen");
+            System.out.println("\n=== SISTEM TUGAS AKHIR (OOP) ===");
+            System.out.println("1. Registrasi Mahasiswa");
+            System.out.println("2. Registrasi Dosen (Set Nama & NIM)");
+            System.out.println("3. Login Mahasiswa");
+            System.out.println("4. Login Dosen");
             System.out.println("0. Keluar");
             System.out.print("Pilih: ");
-            pilih = Integer.parseInt(input.nextLine());
+            try { pilih = Integer.parseInt(sc.nextLine()); } catch (Exception e) { pilih = -1; }
 
             switch (pilih) {
+                case 1: registerMahasiswa(); break;
+                case 2: registerDosen(); break;
+                case 3: loginMahasiswa(); break;
+                case 4: loginDosen(); break;
+                case 0: System.out.println("Sampai Jumpa!"); break;
+                default: System.out.println("Pilihan salah!");
+            }
+        } while (pilih != 0);
+    }
 
-                // ===== MAHASISWA =====
-                case 1:
-                    System.out.print("Nama: ");
-                    String nama = input.nextLine();
-                    System.out.print("NIM: ");
-                    String nim = input.nextLine();
-                    System.out.print("Prodi: ");
-                    String prodi = input.nextLine();
+    // ... (Fungsi register tetap sama) ...
+    static void registerMahasiswa() {
+        System.out.println("\n--- REGISTRASI MAHASISWA ---");
+        System.out.print("Nama: "); String nama = sc.nextLine();
+        System.out.print("NIM: "); String nim = sc.nextLine();
+        System.out.print("Email: "); String email = sc.nextLine();
+        System.out.print("Password: "); String pass = sc.nextLine();
+        listMhs.add(new Mahasiswa(nama, email, pass, nim));
+        System.out.println("Mahasiswa Terdaftar!");
+    }
 
-                    Mahasiswa mhs = new Mahasiswa(nama, nim, prodi);
+    static void registerDosen() {
+        System.out.println("\n--- REGISTRASI DOSEN ---");
+        System.out.print("Nama Dosen: "); String namaD = sc.nextLine();
+        System.out.print("NIM Dosen: "); String nimD = sc.nextLine();
+        listDosen.add(new Dosen(namaD, nimD, "admin123"));
+        System.out.println("Dosen Terdaftar!");
+    }
 
-                    int pilihMhs;
-                    do {
-                        System.out.println("\n--- MENU MAHASISWA ---");
-                        System.out.println("1. Ajukan Judul");
-                        System.out.println("2. Lihat Status & Jadwal");
-                        System.out.println("0. Kembali");
-                        System.out.print("Pilih: ");
-                        pilihMhs = Integer.parseInt(input.nextLine());
+    static void loginMahasiswa() {
+        System.out.print("\nEmail: "); String mail = sc.nextLine();
+        System.out.print("Password: "); String pass = sc.nextLine();
+        Mahasiswa m = null;
+        for (Mahasiswa x : listMhs) if (x.getEmail().equals(mail) && x.getPassword().equals(pass)) { m = x; break; }
 
-                        if (pilihMhs == 1) {
-                            System.out.print("Judul TA: ");
-                            String judul = input.nextLine();
-                            daftar.add(new PengajuanTA(mhs.getNama(), judul));
-                            System.out.println("Pengajuan berhasil!");
-                        }
+        if (m != null) {
+            m.login();
+            int menu;
+            do {
+                System.out.println("\n-- MENU MAHASISWA (" + m.getNama() + ") --");
+                System.out.println("1. Ajukan Judul TA\n2. Cek Status & Jadwal\n0. Logout");
+                System.out.print("Pilih: ");
+                try { menu = Integer.parseInt(sc.nextLine()); } catch (Exception e) { menu = -1; }
 
-                        else if (pilihMhs == 2) {
+                if (menu == 1) {
+                    System.out.print("Judul TA: "); String jdl = sc.nextLine();
+                    listPengajuan.add(new PengajuanTA("P"+(listPengajuan.size()+1), jdl, m.getNama(), m.getNim()));
+                    System.out.println("Judul Terkirim.");
+                } else if (menu == 2) {
+                    System.out.println("\n--- STATUS PENGAJUAN ---");
+                    for (PengajuanTA p : listPengajuan) if(p.getNim().equals(m.getNim())) p.tampilkanPengajuan();
+                    System.out.println("\n--- JADWAL SIDANG ---");
+                    for (JadwalSidang j : listJadwal) if(j.nim.equals(m.getNim())) j.tampilkanJadwal();
+                }
+            } while (menu != 0);
+            m.logout();
+        } else System.out.println("Login Gagal!");
+    }
 
-                            if (daftar.isEmpty()) {
-                                System.out.println("Data tidak ada");
-                            } else {
-                                boolean ditemukan = false;
+    static void loginDosen() {
+        System.out.print("\nNama Dosen: "); String nama = sc.nextLine();
+        System.out.print("NIM Dosen: "); String nim = sc.nextLine();
+        System.out.print("Password: "); String pass = sc.nextLine();
+        Dosen d = null;
+        for (Dosen x : listDosen) {
+            if (x.getNama().equalsIgnoreCase(nama) && x.getNimDosen().equals(nim) && x.getPassword().equals(pass)) {
+                d = x; break;
+            }
+        }
+        if (d != null) {
+            d.login();
+            int menu;
+            do {
+                System.out.println("\n-- MENU DOSEN (" + d.getNama() + ") --");
+                System.out.println("1. Verifikasi Judul\n2. Kelola Jadwal Sidang\n0. Logout");
+                System.out.print("Pilih: ");
+                try { menu = Integer.parseInt(sc.nextLine()); } catch (Exception e) { menu = -1; }
 
-                                for (PengajuanTA p : daftar) {
-                                    if (p.getNamaMahasiswa().equals(mhs.getNama())) {
+                if (menu == 1) {
+                    if(listPengajuan.isEmpty()) System.out.println("Tidak ada pengajuan.");
+                    for (int i=0; i<listPengajuan.size(); i++) {
+                        System.out.print((i+1)+". "); listPengajuan.get(i).tampilkanPengajuan();
+                    }
+                    if(!listPengajuan.isEmpty()){
+                        System.out.print("Pilih nomor pengajuan: "); int idx = Integer.parseInt(sc.nextLine())-1;
+                        System.out.print("Setujui (true/false): ");
+                        d.verifikasiJudul(listPengajuan.get(idx), Boolean.parseBoolean(sc.nextLine()));
+                        System.out.println("Pengajuan diupdate!");
+                    }
+                } else if (menu == 2) kelolaJadwal();
+            } while (menu != 0);
+            d.logout();
+        } else System.out.println("Login Dosen Gagal!");
+    }
 
-                                        ditemukan = true;
-                                        p.tampilkanMahasiswa();
+    static void kelolaJadwal() {
+        int menu;
+        do {
+            System.out.println("\n--- KELOLA JADWAL SIDANG ---");
+            System.out.println("1. Tambah Jadwal");
+            System.out.println("2. Ubah Jadwal");
+            System.out.println("3. Tampil Jadwal");
+            System.out.println("4. Update Status");
+            System.out.println("5. Hapus Jadwal");
+            System.out.println("0. Kembali");
+            System.out.print("Pilih: ");
+            try { menu = Integer.parseInt(sc.nextLine()); } catch (Exception e) { menu = -1; }
 
-                                        boolean adaJadwal = false;
-
-                                        for (JadwalSidang j : jadwalList) {
-                                            if (p.getJudul().equals(j.getJudul())) {
-                                                adaJadwal = true;
-                                                System.out.println("=== Jadwal Sidang ===");
-                                                j.tampilkan();
-                                            }
-                                        }
-
-                                        if (!adaJadwal) {
-                                            System.out.println("Belum ada jadwal sidang");
-                                        }
-                                    }
-                                }
-
-                                if (!ditemukan) {
-                                    System.out.println("Data tidak ada");
-                                }
-                            }
-                        }
-
-                    } while (pilihMhs != 0);
-                    break;
-
-                // ===== DOSEN =====
-                case 2:
-                    System.out.print("Password Dosen: ");
-                    String pass = input.nextLine();
-
-                    if (!pass.equals("admin123")) {
-                        System.out.println("Akses ditolak!");
+            if (menu == 1) {
+                System.out.print("NIM Mahasiswa: "); String nim = sc.nextLine();
+                
+                // --- BAGIAN PERBAIKAN: CEK STATUS JUDUL ---
+                boolean bolehSidang = false;
+                for (PengajuanTA p : listPengajuan) {
+                    if (p.getNim().equals(nim) && p.getStatus().equals("Disetujui")) {
+                        bolehSidang = true;
                         break;
                     }
+                }
 
-                    System.out.print("Nama Dosen: ");
-                    String namaD = input.nextLine();
-                    System.out.print("NIP: ");
-                    String nip = input.nextLine();
+                if (bolehSidang) {
+                    System.out.print("Tanggal (DD-MM-YYYY): "); String tgl = sc.nextLine();
+                    System.out.print("Jam: "); String jam = sc.nextLine();
+                    System.out.print("Ruang: "); String ruang = sc.nextLine();
+                    listJadwal.add(new JadwalSidang("J"+(listJadwal.size()+1), nim, tgl, jam, ruang, "Terjadwal"));
+                    System.out.println("Jadwal Berhasil Ditambah.");
+                } else {
+                    System.out.println("Judul TA Mahasiswa belum di setujui !.");
+                }
+                // ------------------------------------------
 
-                    Dosen dosen = new Dosen(namaD, nip);
-                    System.out.println(dosen.getInfo());
-
-                    int menuDosen;
-                    do {
-                        System.out.println("\n--- MENU DOSEN ---");
-                        System.out.println("1. Lihat Pengajuan");
-                        System.out.println("2. Verifikasi Pengajuan");
-                        System.out.println("3. Tambah Jadwal Sidang");
-                        System.out.println("4. Tampilkan Jadwal");
-                        System.out.println("5. Ubah Jadwal");
-                        System.out.println("6. Update Status Jadwal");
-                        System.out.println("7. Hapus Jadwal");
-                        System.out.println("0. Kembali");
-                        System.out.print("Pilih: ");
-                        menuDosen = Integer.parseInt(input.nextLine());
-
-                        // LIHAT PENGAJUAN
-                        if (menuDosen == 1) {
-                            if (daftar.isEmpty()) {
-                                System.out.println("Data tidak ada");
-                            } else {
-                                for (int i = 0; i < daftar.size(); i++) {
-                                    System.out.print((i + 1) + ". ");
-                                    daftar.get(i).tampilkanDosen();
-                                }
-                            }
-                        }
-
-                        // VERIFIKASI
-                        else if (menuDosen == 2) {
-                            if (daftar.isEmpty()) {
-                                System.out.println("Data tidak ada");
-                            } else {
-                                System.out.print("Pilih nomor: ");
-                                int i = Integer.parseInt(input.nextLine()) - 1;
-
-                                if (i >= 0 && i < daftar.size()) {
-                                    System.out.print("Setujui? (true/false): ");
-                                    boolean acc = Boolean.parseBoolean(input.nextLine());
-                                    dosen.verifikasi(daftar.get(i), acc);
-                                    System.out.println("Status diperbarui!");
-                                }
-                            }
-                        }
-
-                        // TAMBAH JADWAL (HANYA JIKA DISETUJUI)
-                        else if (menuDosen == 3) {
-                            if (daftar.isEmpty()) {
-                                System.out.println("Data tidak ada");
-                            } else {
-                                System.out.print("Pilih pengajuan: ");
-                                int i = Integer.parseInt(input.nextLine()) - 1;
-
-                                if (i >= 0 && i < daftar.size()) {
-
-                                    if (daftar.get(i).getStatus().equals("Disetujui")) {
-
-                                        System.out.print("Hari: ");
-                                        String hari = input.nextLine();
-
-                                        System.out.print("Tanggal: ");
-                                        String tanggal = input.nextLine();
-
-                                        System.out.print("Bulan: ");
-                                        String bulan = input.nextLine();
-
-                                        System.out.print("Tahun: ");
-                                        String tahun = input.nextLine();
-
-                                        System.out.print("Waktu: ");
-                                        String waktu = input.nextLine();
-
-                                        System.out.print("Ruangan: ");
-                                        String ruang = input.nextLine();
-
-                                        jadwalList.add(new JadwalSidang(
-                                                daftar.get(i).getNamaMahasiswa(),
-                                                daftar.get(i).getJudul(),
-                                                hari, tanggal, bulan, tahun,
-                                                waktu, ruang,
-                                                "Terjadwal"
-                                        ));
-
-                                        System.out.println("Jadwal dibuat!");
-                                    } else {
-                                        System.out.println("❌ Belum disetujui / ditolak!");
-                                    }
-                                }
-                            }
-                        }
-
-                        // TAMPIL JADWAL
-                        else if (menuDosen == 4) {
-                            if (jadwalList.isEmpty()) {
-                                System.out.println("Data tidak ada");
-                            } else {
-                                for (JadwalSidang j : jadwalList) {
-                                    j.tampilkan();
-                                }
-                            }
-                        }
-
-                        // UBAH JADWAL
-                        else if (menuDosen == 5) {
-                            System.out.print("Pilih jadwal: ");
-                            int i = Integer.parseInt(input.nextLine()) - 1;
-
-                            if (i >= 0 && i < jadwalList.size()) {
-
-                                System.out.print("Hari baru: ");
-                                String hari = input.nextLine();
-
-                                System.out.print("Tanggal baru: ");
-                                String tanggal = input.nextLine();
-
-                                System.out.print("Bulan baru: ");
-                                String bulan = input.nextLine();
-
-                                System.out.print("Tahun baru: ");
-                                String tahun = input.nextLine();
-
-                                System.out.print("Waktu baru: ");
-                                String waktu = input.nextLine();
-
-                                System.out.print("Ruangan baru: ");
-                                String ruang = input.nextLine();
-
-                                jadwalList.get(i).updateJadwal(hari, tanggal, bulan, tahun, waktu, ruang);
-                                System.out.println("Jadwal diupdate!");
-                            }
-                        }
-
-                        // UPDATE STATUS
-                        else if (menuDosen == 6) {
-                            System.out.print("Pilih jadwal: ");
-                            int i = Integer.parseInt(input.nextLine()) - 1;
-
-                            if (i >= 0 && i < jadwalList.size()) {
-                                System.out.print("Status baru: ");
-                                String status = input.nextLine();
-                                jadwalList.get(i).updateStatus(status);
-                                System.out.println("Status diupdate!");
-                            }
-                        }
-
-                        // HAPUS
-                        else if (menuDosen == 7) {
-                            System.out.print("Pilih jadwal: ");
-                            int i = Integer.parseInt(input.nextLine()) - 1;
-
-                            if (i >= 0 && i < jadwalList.size()) {
-                                jadwalList.remove(i);
-                                System.out.println("Jadwal dihapus!");
-                            }
-                        }
-
-                    } while (menuDosen != 0);
-                    break;
+            } else if (menu == 2) {
+                System.out.print("ID Jadwal: "); String id = sc.nextLine();
+                for (JadwalSidang j : listJadwal) if(j.id.equalsIgnoreCase(id)) {
+                    System.out.print("Tgl Baru: "); j.tgl = sc.nextLine();
+                    System.out.print("Jam Baru: "); j.wkt = sc.nextLine();
+                    System.out.print("Ruang Baru: "); j.rng = sc.nextLine();
+                    System.out.println("Jadwal Diubah.");
+                }
+            } else if (menu == 3) {
+                if(listJadwal.isEmpty()) System.out.println("Belum ada jadwal.");
+                for (JadwalSidang j : listJadwal) j.tampilkanJadwal();
+            } else if (menu == 4) {
+                System.out.print("ID Jadwal: "); String id = sc.nextLine();
+                for (JadwalSidang j : listJadwal) if(j.id.equalsIgnoreCase(id)) {
+                    System.out.print("Ketik Status Terbaru: "); j.st = sc.nextLine();
+                    System.out.println("Status Diupdate!");
+                }
+            } else if (menu == 5) {
+                System.out.print("ID Jadwal: "); String id = sc.nextLine();
+                listJadwal.removeIf(j -> j.id.equalsIgnoreCase(id));
+                System.out.println("Jadwal Dihapus.");
             }
-
-        } while (pilih != 0);
-
-        input.close();
+        } while (menu != 0 && menu != -1);
     }
 }
